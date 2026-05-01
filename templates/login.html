@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Assistant - Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #202123;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container {
+            background-color: #343541;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+            color: white;
+        }
+        h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: #ececf1;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #c5c5d2;
+            font-size: 0.9rem;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #565869;
+            background-color: #40414f;
+            color: white;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            outline: none;
+        }
+        input[type="text"]:focus {
+            border-color: #10a37f;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #10a37f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .login-btn:hover {
+            background-color: #0b8c6a;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Welcome Back</h2>
+        <form method="POST" action="/login">
+            <div class="input-group">
+                <label for="username">Enter your Username</label>
+                <input type="text" id="username" name="username" required placeholder="e.g. Alice" autocomplete="off">
+            </div>
+            <button type="submit" class="login-btn">Start Chatting</button>
+        </form>
+    </div>
+</body>
+</html>

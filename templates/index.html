@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Assistant</title>
+</head>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        height: 100vh;
+    }
+    
+    .app-container {
+        display: flex;
+        height: 100vh;
+    }
+    
+    .sidebar {
+        width: 260px;
+        background-color: #202123;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+    
+    .new-chat-btn {
+        background-color: #343541;
+        color: white;
+        border: 1px solid #565869;
+        padding: 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: left;
+        margin-bottom: 20px;
+        font-size: 1rem;
+    }
+    .new-chat-btn:hover { background-color: #40414f; }
+    
+    .chat-list {
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+    
+    .chat-item {
+        padding: 12px;
+        margin-bottom: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .chat-item-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex-grow: 1;
+    }
+    .delete-btn {
+        background: none;
+        border: none;
+        color: #999;
+        cursor: pointer;
+        padding: 0 5px;
+        font-size: 1rem;
+        display: none;
+    }
+    .chat-item:hover .delete-btn {
+        display: inline-block;
+    }
+    .delete-btn:hover {
+        color: #ff4c4c;
+    }
+    .chat-item:hover {
+        background-color: #2a2b32;
+    }
+    .chat-item.active {
+        background-color: #343541;
+        border-left: 3px solid #10a37f;
+        padding-left: 9px;
+    }
+    
+    .user-profile {
+        margin-top: auto;
+        padding-top: 15px;
+        border-top: 1px solid #4d4d4f;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+    .logout-btn {
+        color: #ff4c4c;
+        text-decoration: none;
+        font-size: 0.8rem;
+        padding: 5px 8px;
+        border-radius: 4px;
+        border: 1px solid #ff4c4c;
+    }
+    .logout-btn:hover {
+        background-color: #ff4c4c;
+        color: white;
+    }
+    
+    .main-content {
+        flex-grow: 1;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;     /* don't push content off-screen when tall */
+        background-color: #f0f0f0;
+        overflow-y: auto;            /* allow scrolling if content grows */
+        padding: 30px 20px;
+        box-sizing: border-box;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 600px;
+        text-align: center;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+h1 {
+    font-size: 2rem;
+    color: #333;
+}
+
+.mic-wrapper {
+    margin-top: 20px;
+    position: sticky;       /* keep buttons always visible at top of container */
+    top: 0;
+    background: white;
+    z-index: 10;
+    padding-bottom: 10px;
+}
+
+.mic-btn {
+    background-color: #008CBA;
+    color: white;
+    font-size: 1.5rem;
+    padding: 15px 30px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.mic-btn:active {
+    background-color: #005f73;
+}
+
+#conversation-history {
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #444;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.history-entry {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.user-input {
+    font-weight: bold;
+    color: #005f73;
+}
+
+.ai-response {
+    margin-top: 5px;
+    color: #333;
+}
+
+</style>
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <button id="new-chat-btn" class="new-chat-btn">+ New Chat</button>
+            <div id="chat-list" class="chat-list">
+                <!-- Chat list populated dynamically -->
+            </div>
+            <div class="user-profile">
+                <span>👤 {{ username }}</span>
+                <a href="/logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="container">
+                <h1>AI Voice Assistant</h1>
+                <div class="mic-wrapper">
+                    <button id="start-record-btn" class="mic-btn">🎤 Speak Now</button>
+                    <button id="stop-speak-btn" class="mic-btn" style="background-color: #d9534f; margin-left: 10px; display: none;">⏹️ Stop AI</button>
+                </div>
+
+                <div id="response-text"></div>
+
+                <div id="conversation-history">
+                    <!-- Conversation history will be dynamically updated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    // ─── State ───────────────────────────────────────────────────────────────────
+    let currentChatId = null;
+    let isAiSpeaking   = false;
+    let currentAiText  = "";
+    let submitTimeout  = null;
+    let lastTranscript = "";
+
+    // ─── DOM refs ────────────────────────────────────────────────────────────────
+    const newChatBtn         = document.getElementById('new-chat-btn');
+    const chatListEl         = document.getElementById('chat-list');
+    const startRecordBtn     = document.getElementById('start-record-btn');
+    const stopSpeakBtn       = document.getElementById('stop-speak-btn');
+    const responseText       = document.getElementById('response-text');
+    const conversationHistory= document.getElementById('conversation-history');
+
+
+    // ─── Speech Recognition Setup ─────────────────────────────────────────────
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous      = false;   // stop after each sentence
+    recognition.interimResults  = true;
+    recognition.lang            = 'en-US';
+
+    // Only reset the button when AI is NOT speaking.
+    // NEVER restart the mic automatically during AI speech — that causes echo.
+    recognition.onend = () => {
+        if (!isAiSpeaking) {
+            startRecordBtn.textContent = '🎤 Speak Now';
+        }
+    };
+
+    recognition.onstart = () => {
+        lastTranscript = "";
+        startRecordBtn.textContent = '🔴 Listening...';
+        responseText.innerHTML = 'Listening...';
+    };
+
+    recognition.onerror = (e) => {
+        if (e.error !== 'no-speech' && e.error !== 'aborted') {
+            responseText.innerHTML = `Mic error: ${e.error}. Click Speak Now to try again.`;
+        }
+        if (!isAiSpeaking) startRecordBtn.textContent = '🎤 Speak Now';
+    };
+
+    recognition.onresult = (event) => {
+        // Mic is OFF during AI speech — no echo possible, no keyword listening needed here.
+        // Interruption is handled by the Stop button and Escape key instead.
+        if (isAiSpeaking) return;
+
+        // Build transcript
+        let interim = '', final = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) final += event.results[i][0].transcript;
+            else interim += event.results[i][0].transcript;
+        }
+
+        const heard = (final || interim).trim();
+        if (!heard) return;
+
+        lastTranscript = heard;
+        responseText.innerHTML = `You said: "${heard}"`;
+
+        // Debounce: send after 1.5 s silence OR on final result
+        if (submitTimeout) clearTimeout(submitTimeout);
+        const delay = final ? 300 : 1500;
+        submitTimeout = setTimeout(() => sendToAI(lastTranscript), delay);
+    };
+
+    // ─── Mic Button ───────────────────────────────────────────────────────────
+    startRecordBtn.addEventListener('click', () => {
+        if (isAiSpeaking) {
+            stopAI();
+            return;
+        }
+        try {
+            recognition.start();
+        } catch (e) {
+            // already running — just ignore
+        }
+    });
+
+    stopSpeakBtn.addEventListener('click', stopAI);
+
+    // ─── Stop AI (button + Escape key) ────────────────────────────────────────
+    function stopAI() {
+        window.speechSynthesis.cancel();
+        isAiSpeaking  = false;
+        currentAiText = "";
+        stopSpeakBtn.style.display = 'none';
+        responseText.innerHTML = 'AI stopped. Click 🎤 Speak Now to ask again.';
+    }
+
+
+    // ─── Send to backend ──────────────────────────────────────────────────────
+    function sendToAI(text) {
+        if (!text || !text.trim()) return;
+
+        // Hide the "continuing" banner once user sends a new message
+
+        responseText.innerHTML = `Sending: "${text}"...`;
+
+        fetch('/process_voice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_input: text, chat_id: currentChatId }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            currentChatId = data.chat_id;
+            responseText.innerHTML = `AI: "${data.response}"`;
+            updateConversationHistory(data.conversation_history);
+            loadChats();
+            speakResponse(data.response);
+        })
+        .catch(() => {
+            responseText.innerHTML = 'Error — check the server. Click 🎤 Speak Now to retry.';
+        });
+    }
+
+    // ─── Text-to-Speech ───────────────────────────────────────────────────────
+    function speakResponse(text) {
+        window.speechSynthesis.cancel();
+
+        const cleanText = text.replace(/[*_#`]/g, '');
+        const sentences = cleanText.match(/[^.!?\n]+[.!?\n]*/g) || [cleanText];
+
+        isAiSpeaking = true;
+        stopSpeakBtn.style.display = 'inline-block';
+        let idx = 0;
+
+        // *** Mic is fully OFF during AI speech — no echo, no false positives ***
+        // User can stop with the Stop button or Escape key.
+        try { recognition.stop(); } catch(e) {}
+
+        function next() {
+            if (idx >= sentences.length || !isAiSpeaking) {
+                // AI finished naturally
+                stopSpeakBtn.style.display = 'none';
+                isAiSpeaking  = false;
+                currentAiText = "";
+                startRecordBtn.textContent = '🎤 Speak Now';
+                return;
+            }
+            currentAiText = sentences[idx].toLowerCase();
+            const utt = new SpeechSynthesisUtterance(sentences[idx]);
+            utt.onend = () => { if (isAiSpeaking) { idx++; next(); } };
+            window.speechSynthesis.speak(utt);
+        }
+
+        next();
+    }
+
+    // ─── Chat History UI ─────────────────────────────────────────────────────
+    function updateConversationHistory(history) {
+        conversationHistory.innerHTML = '';
+        history.forEach(entry => {
+            const wrap = document.createElement('div');
+            wrap.classList.add('history-entry');
+
+            const u = document.createElement('div');
+            u.classList.add('user-input');
+            u.innerHTML = `You: ${entry.user}`;
+
+            const a = document.createElement('div');
+            a.classList.add('ai-response');
+            a.innerHTML = `AI: ${entry.ai}`;
+
+            wrap.appendChild(u);
+            wrap.appendChild(a);
+            conversationHistory.appendChild(wrap);
+        });
+    }
+
+    // ─── Sidebar ─────────────────────────────────────────────────────────────
+    function loadChats() {
+        fetch('/api/chats')
+        .then(r => r.json())
+        .then(chats => {
+            chatListEl.innerHTML = '';
+            chats.forEach(chat => {
+                const div = document.createElement('div');
+                div.classList.add('chat-item');
+                if (chat.id === currentChatId) div.classList.add('active');
+
+                const titleSpan = document.createElement('span');
+                titleSpan.classList.add('chat-item-title');
+                titleSpan.innerText = chat.title;
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.classList.add('delete-btn');
+                deleteBtn.innerHTML = '🗑️';
+                deleteBtn.onclick = (e) => { e.stopPropagation(); deleteChat(chat.id); };
+
+                div.appendChild(titleSpan);
+                div.appendChild(deleteBtn);
+                div.onclick = () => loadChat(chat.id);
+                chatListEl.appendChild(div);
+            });
+        });
+    }
+
+    function deleteChat(chatId) {
+        if (!confirm('Delete this chat?')) return;
+        fetch(`/api/chats/${chatId}`, { method: 'DELETE' })
+        .then(() => {
+            if (currentChatId === chatId) newChatBtn.click();
+            else loadChats();
+        });
+    }
+
+    function loadChat(chatId) {
+        window.speechSynthesis.cancel();
+        currentChatId = chatId;
+        responseText.innerHTML = '';
+        fetch(`/api/chats/${chatId}`)
+        .then(r => r.json())
+        .then(data => {
+            updateConversationHistory(data.conversation_history);
+            loadChats();
+            // Show a clear banner so user knows they can continue this chat
+            const title = data.conversation_history.length > 0
+                ? data.conversation_history[0].user.substring(0, 40)
+                : 'this chat';
+        });
+    }
+
+    newChatBtn.addEventListener('click', () => {
+        window.speechSynthesis.cancel();
+        currentChatId = null;
+        responseText.innerHTML = '';
+        conversationHistory.innerHTML = '';
+        loadChats();
+    });
+
+    loadChats();
+</script>
+</html>
