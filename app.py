@@ -3,12 +3,18 @@ import google.generativeai as genai
 import os
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from dotenv import load_dotenv
+from werkzeug.middleware.proxy_fix import ProxyFix
 import chat_storage
 
 load_dotenv()
 
 app = Flask(__name__)
+# Fix for running behind Hugging Face's reverse proxy (needed for sessions to work)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 app.secret_key = os.environ.get('SECRET_KEY', 'default-dev-secret-key-123')
+# Secure session cookie settings for HTTPS deployment
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True
 
 # Set your Google API key
 api_key = os.environ.get("GEMINI_API_KEY")
