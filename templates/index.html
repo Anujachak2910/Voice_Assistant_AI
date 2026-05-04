@@ -21,12 +21,40 @@
     
     .sidebar {
         width: 260px;
+        min-width: 260px;
         background-color: #202123;
         color: white;
         display: flex;
         flex-direction: column;
         padding: 10px;
         box-sizing: border-box;
+        transition: width 0.3s ease, min-width 0.3s ease, padding 0.3s ease;
+        overflow: hidden;
+        position: relative;
+    }
+    .sidebar.collapsed {
+        width: 48px;
+        min-width: 48px;
+        padding: 10px 4px;
+    }
+    .sidebar.collapsed .sidebar-content {
+        display: none;
+    }
+    .sidebar-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.3rem;
+        cursor: pointer;
+        padding: 6px 8px;
+        border-radius: 5px;
+        margin-bottom: 8px;
+        align-self: flex-start;
+        transition: background 0.2s;
+        flex-shrink: 0;
+    }
+    .sidebar-toggle:hover {
+        background-color: #40414f;
     }
     
     .new-chat-btn {
@@ -188,14 +216,17 @@ h1 {
 </style>
 <body>
     <div class="app-container">
-        <div class="sidebar">
-            <button id="new-chat-btn" class="new-chat-btn">+ New Chat</button>
-            <div id="chat-list" class="chat-list">
-                <!-- Chat list populated dynamically -->
-            </div>
-            <div class="user-profile">
-                <span>👤 {{ username }}</span>
-                <a href="/logout" class="logout-btn">Logout</a>
+        <div class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle Sidebar">☰</button>
+            <div class="sidebar-content">
+                <button id="new-chat-btn" class="new-chat-btn">+ New Chat</button>
+                <div id="chat-list" class="chat-list">
+                    <!-- Chat list populated dynamically -->
+                </div>
+                <div class="user-profile">
+                    <span>👤 {{ username }}</span>
+                    <a href="/logout" class="logout-btn">Logout</a>
+                </div>
             </div>
         </div>
         <div class="main-content">
@@ -449,6 +480,14 @@ h1 {
         responseText.innerHTML = '';
         conversationHistory.innerHTML = '';
         loadChats();
+    });
+
+    // ─── Sidebar Toggle ───────────────────────────────────────────────────────
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        toggleBtn.title = sidebar.classList.contains('collapsed') ? 'Expand Sidebar' : 'Collapse Sidebar';
     });
 
     loadChats();
