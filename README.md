@@ -10,7 +10,7 @@ pinned: false
 # 🎙️ Multi-User AI Voice Assistant
 
 ### 🔴 **Live Demo: Run it Now on Hugging Face Spaces!**
-**Link:** https://huggingface.co/spaces/AnuC2910/Voice_Assistant_AI
+**Link:** https://anuc2910-voice-assistant-ai.hf.space
 
 A robust, real-time AI Voice Assistant built with Python, Flask, and the **Google Gemini API**. This application enables users to converse with an AI using spoken natural language, featuring dynamic session tracking, private user accounts, and seamless cloud deployment.
 
