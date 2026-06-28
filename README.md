@@ -7,41 +7,40 @@ sdk: docker
 pinned: false
 ---
 
-# 🎙️ Multi-User AI Voice Assistant
+# Multi-User AI Voice Assistant
 
-### 🔴 **Live Demo: Run it Now on Hugging Face Spaces!**
-**Link:** https://anuc2910-voice-assistant-ai.hf.space
+Live Demo: https://anuc2910-voice-assistant-ai.hf.space
 
-A robust, real-time AI Voice Assistant built with Python, Flask, and the **Google Gemini API**. This application enables users to converse with an AI using spoken natural language, featuring dynamic session tracking, private user accounts, and seamless cloud deployment.
+A robust, real-time AI Voice Assistant built with Python, Flask, and the Google Gemini API. This application enables users to converse with an AI using spoken natural language, featuring dynamic session tracking, private user accounts, and seamless cloud deployment.
 
-![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)
+![Hugging Face Spaces](https://img.shields.io/badge/Hugging%20Face-Spaces-blue)
 ![Flask](https://img.shields.io/badge/flask-%23000.svg?style=flat&logo=flask&logoColor=white)
 ![Python](https://img.shields.io/badge/python-3670A0?style=flat&logo=python&logoColor=ffdd54)
 
 ---
 
-## ✨ Features
+## Features
 
 - **Push-to-Talk Architecture:** Mitigates echo-loops by securely cutting off microphone feedback while the AI synthesizes speech.
 - **Multi-User Support:** Includes a secure login portal where sessions are tied to unique usernames.
 - **Private Session Persistence:** Chat history is saved locally per user, allowing individuals to resume previous conversations seamlessly.
-- **Web Speech API Integration:** Leverages the browser's native `SpeechRecognition` and `SpeechSynthesisUtterance` for lightweight, instantaneous voice interactions.
-- **Markdown Sanitization:** Server-side pre-processing ensures AI-generated markdown (like `**bold**` or `*italic*`) is stripped to provide clean, natural-sounding Text-to-Speech output.
-- **Cloud-Ready:** Completely dockerized and configured for instantaneous deployment on Hugging Face Spaces.
+- **Web Speech API Integration:** Leverages the browser's native SpeechRecognition and SpeechSynthesisUtterance for lightweight, instantaneous voice interactions.
+- **Markdown Sanitization:** Server-side pre-processing ensures AI-generated markdown is stripped to provide clean, natural-sounding Text-to-Speech output.
+- **Cloud-Ready:** Completely dockerized and configured for deployment on Hugging Face Spaces.
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 - **Backend:** Python, Flask, Gunicorn
-- **AI Model:** Google `gemini-flash-latest` (via `google-generativeai`)
+- **AI Model:** Google gemini-flash-latest (via google-generativeai)
 - **Frontend:** Vanilla HTML5, CSS3, JavaScript (Web Speech API)
-- **Data Persistence:** Local JSON-based storage (`chats.json`)
+- **Data Persistence:** Local JSON-based storage (chats.json)
 - **Containerization:** Docker
 
 ---
 
-## 🚀 Local Setup Instructions
+## Local Setup Instructions
 
 Follow these steps to run the application on your local machine:
 
@@ -85,21 +84,21 @@ Open your web browser and navigate to `http://127.0.0.1:5000`. You will be promp
 
 ---
 
-## ☁️ Deployment (Hugging Face Spaces)
+## Deployment (Hugging Face Spaces)
 
-This repository is pre-configured for **Hugging Face Spaces** using Docker.
+This repository is pre-configured for Hugging Face Spaces using Docker.
 
-1. Create a new Space on [Hugging Face](https://huggingface.co/spaces).
-2. Set the SDK to **Docker** (Blank template).
-3. Under the **Settings** tab of your Space, sync this GitHub repository.
-4. Still in **Settings**, navigate to **Variables and secrets** and add a new secret:
-   - **Name:** `GEMINI_API_KEY`
-   - **Value:** *Your API Key*
-5. The space will build automatically based on the included `Dockerfile`.
+1. Create a new Space on Hugging Face (https://huggingface.co/spaces).
+2. Set the SDK to Docker (Blank template).
+3. Under the Settings tab of your Space, sync this GitHub repository.
+4. Still in Settings, navigate to Variables and secrets and add a new secret:
+   - Name: GEMINI_API_KEY
+   - Value: Your API Key
+5. The space will build automatically based on the included Dockerfile.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 Voice_Assistant_AI/
@@ -116,7 +115,7 @@ Voice_Assistant_AI/
 
 ---
 
-## ⚠️ Important Notes
+## Important Notes
 
-- **Browser Compatibility:** This project heavily relies on the Web Speech API. For the best experience, please use **Google Chrome** or **Microsoft Edge**. Safari and Firefox may have limited support for native voice synthesis/recognition.
+- **Browser Compatibility:** This project heavily relies on the Web Speech API. For the best experience, please use Google Chrome or Microsoft Edge. Safari and Firefox may have limited support for native voice synthesis/recognition.
 - **Network Security:** If deployed publicly without HTTPS, modern browsers may block access to the user's microphone. Hugging Face Spaces handles SSL/HTTPS out of the box.
