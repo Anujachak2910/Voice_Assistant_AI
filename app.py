@@ -23,7 +23,7 @@ if not api_key:
 
 genai.configure(api_key=api_key)
 
-model = genai.GenerativeModel("gemini-flash-latest")
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 def clean_markdown(text):
     """Strip markdown symbols from Gemini responses so stored text is plain."""
