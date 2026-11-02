@@ -50,7 +50,7 @@ def voice_assistance(username, user_input, chat_id=None):
     {history_str}
     The user just asked the following question:
     '{user_input}'
-    Provide a direct and informative answer, focusing on the exact details the user is asking for. Avoid unnecessary elaboration or asking follow-up questions unless essential to the user’s inquiry. Keep the response clear, concise, and to the point. If the topic is complex, briefly summarize the key aspects.
+    Provide a direct and informative answer, focusing on the exact details the user is asking for. Avoid unnecessary elaboration or asking follow-up questions unless essential to the user's inquiry. Keep the response clear, concise, and to the point. If the topic is complex, briefly summarize the key aspects.
     """
 
     response = clean_markdown(model.generate_content(prompt).text)
@@ -90,15 +90,17 @@ def process_voice():
 
     user_input = request.json.get("user_input")
     chat_id = request.json.get("chat_id")
-    
-    response, new_chat_id, updated_history = voice_assistance(session['username'], user_input, chat_id)
 
-    # Return the updated conversation history and chat_id
-    return jsonify({
-        'response': response, 
-        'conversation_history': updated_history,
-        'chat_id': new_chat_id
-    })
+    try:
+        response, new_chat_id, updated_history = voice_assistance(session['username'], user_input, chat_id)
+        return jsonify({
+            'response': response,
+            'conversation_history': updated_history,
+            'chat_id': new_chat_id
+        })
+    except Exception as e:
+        print(f"ERROR in process_voice: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/chats', methods=['GET'])
